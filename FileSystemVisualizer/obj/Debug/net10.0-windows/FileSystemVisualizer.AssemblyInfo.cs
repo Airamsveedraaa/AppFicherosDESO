@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FileSystemVisualizer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85111e47fe6ddcb6bc10d304fc9be9a5da4bc208")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a3d6ab58014a07e3ca0c698a6f7e1c65e57fe22d")]
 [assembly: System.Reflection.AssemblyProductAttribute("FileSystemVisualizer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FileSystemVisualizer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

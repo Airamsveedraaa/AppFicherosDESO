@@ -26,3 +26,11 @@ C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-w
 C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\FileSystemVisualizer.pdb
 C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\FileSystemVisualizer.genruntimeconfig.cache
 C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\ref\FileSystemVisualizer.dll
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Controls\UnitInputControl.baml
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Controls\UnitInputControl.g.cs
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Views\FatInputFlexibleView.baml
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Views\FatInputFlexibleView.g.cs
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Views\NtfsInputFlexibleView.baml
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Views\UnixInputFlexibleView.baml
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Views\NtfsInputFlexibleView.g.cs
+C:\Users\lsaav\Desktop\App_FicherosDESO\FileSystemVisualizer\obj\Debug\net10.0-windows\Views\UnixInputFlexibleView.g.cs

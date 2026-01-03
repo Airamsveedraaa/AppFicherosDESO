@@ -26,17 +26,17 @@ namespace FileSystemVisualizer.ViewModels
 
         private void NavigateToFat()
         {
-            _navigationService.NavigateTo(new FatInputView(_navigationService));
+            _navigationService.NavigateTo(new FatInputFlexibleView(_navigationService));
         }
 
         private void NavigateToUnix()
         {
-            _navigationService.NavigateTo(new UnixInputView(_navigationService));
+            _navigationService.NavigateTo(new UnixInputFlexibleView(_navigationService));
         }
 
         private void NavigateToNtfs()
         {
-            _navigationService.NavigateTo(new NtfsInputView(_navigationService));
+            _navigationService.NavigateTo(new NtfsInputFlexibleView(_navigationService));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
