@@ -3,10 +3,16 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="clr-namespace:FileSystemVisualizer.Helpers"
       mc:Ignorable="d" 
       d:DesignHeight="800" d:DesignWidth="900"
       Title="Configuración Unix/EXT Flexible"
       Background="#F5F5F5">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <helpers:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -43,42 +49,85 @@
                 <StackPanel MaxWidth="700">
                     
                     <!-- Disk Configuration Section -->
-                    <TextBlock Text="📁 Configuración del Disco" 
+                    <TextBlock Text="📁 Configuración del Disco (Panel Unificado)" 
                               FontSize="20" 
                               FontWeight="Bold"
                               Foreground="#2C3E50"
                               Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Modifique cualquier valor y los demás se actualizarán automáticamente." 
+                               FontSize="12" Foreground="Gray" Margin="0,0,0,15" FontStyle="Italic"/>
                     
-                    <!-- Disk Size -->
-                    <TextBlock Text="Tamaño del Disco *" 
-                              FontSize="16" 
-                              FontWeight="SemiBold"
-                              Foreground="#2C3E50"
-                              Margin="0,0,0,10"/>
-                    <Grid Margin="0,0,0,25">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0"
-                                Text="{Binding DiskSizeValue, UpdateSourceTrigger=PropertyChanged}" 
-                                FontSize="14"
-                                Padding="10"
-                                Margin="0,0,5,0"
-                                BorderBrush="#BDC3C7"
-                                BorderThickness="1"/>
-                        <ComboBox Grid.Column="1"
-                                 SelectedItem="{Binding DiskSizeUnit}"
-                                 FontSize="14"
-                                 Padding="10"
-                                 BorderBrush="#BDC3C7"
-                                 BorderThickness="1">
-                            <ComboBoxItem Content="Bytes"/>
-                            <ComboBoxItem Content="KB"/>
-                            <ComboBoxItem Content="MB"/>
-                            <ComboBoxItem Content="GB" IsSelected="True"/>
-                        </ComboBox>
-                    </Grid>
+                    <!-- Geometry Input Panel -->
+                    <GroupBox Header="Geometría Física (Opcional)" Margin="0,0,0,15" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                <TextBlock Text="Cilindros"/>
+                                <TextBox Text="{Binding Cylinders, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                <TextBlock Text="Cabezas"/>
+                                <TextBox Text="{Binding Heads, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                                <TextBlock Text="Sectores/Pista"/>
+                                <TextBox Text="{Binding SectorsPerTrack, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Sectors and Blocks Panel -->
+                    <GroupBox Header="Dimensiones Lógicas" Margin="0,0,0,15" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                <TextBlock Text="Total de Sectores"/>
+                                <TextBox Text="{Binding TotalSectorsInput, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                <TextBlock Text="Total de Bloques"/>
+                                <TextBox Text="{Binding TotalBlocksInput, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Capacity Panel -->
+                     <GroupBox Header="Capacidad Total" Margin="0,0,0,25" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBox Grid.Column="0"
+                                    Text="{Binding DiskSizeValue, UpdateSourceTrigger=PropertyChanged}" 
+                                    FontSize="14"
+                                    Padding="10"
+                                    Margin="0,0,5,0"
+                                    BorderBrush="#BDC3C7"
+                                    BorderThickness="1"/>
+                            <ComboBox Grid.Column="1"
+                                     SelectedValue="{Binding DiskSizeUnit}"
+                                     SelectedValuePath="Content"
+                                     FontSize="14"
+                                     Padding="10"
+                                     BorderBrush="#BDC3C7"
+                                     BorderThickness="1">
+                                <ComboBoxItem Content="Bytes"/>
+                                <ComboBoxItem Content="KB"/>
+                                <ComboBoxItem Content="MB"/>
+                                <ComboBoxItem Content="GB" IsSelected="True"/>
+                            </ComboBox>
+                        </Grid>
+                    </GroupBox>
 
                     <!-- Block Size -->
                     <TextBlock Text="Tamaño del Bloque *" 
@@ -99,7 +148,8 @@
                                 BorderBrush="#BDC3C7"
                                 BorderThickness="1"/>
                         <ComboBox Grid.Column="1"
-                                 SelectedItem="{Binding BlockSizeUnit}"
+                                 SelectedValue="{Binding BlockSizeUnit}"
+                                 SelectedValuePath="Content"
                                  FontSize="14"
                                  Padding="10"
                                  BorderBrush="#BDC3C7"
@@ -154,7 +204,8 @@
                                 BorderBrush="#BDC3C7"
                                 BorderThickness="1"/>
                         <ComboBox Grid.Column="1"
-                                 SelectedItem="{Binding InodeSizeUnit}"
+                                 SelectedValue="{Binding InodeSizeUnit}"
+                                 SelectedValuePath="Content"
                                  FontSize="14"
                                  Padding="10"
                                  BorderBrush="#BDC3C7"

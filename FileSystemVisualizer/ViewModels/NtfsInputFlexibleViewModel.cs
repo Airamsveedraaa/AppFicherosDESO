@@ -33,17 +33,80 @@ namespace FileSystemVisualizer.ViewModels
         private int _numberOfFiles = 5;
         private double _residentFilePercentage = 30.0;
 
+        // Geometry Configuration
+        // (Mode selector removed)
+
+        // Geometry Params
+        private int _cylinders = 1000;
+        private int _heads = 16;
+        private int _sectorsPerTrack = 63;
+        private int _geometrySectorSize = 512;
+        
+        // Total Counts
+        // (Backing fields moved below guard logic)
+
+        // Guard logic
+        private bool _isRecalculating = false;
+
+        private long _totalSectorsInput = 20480;
+        private long _totalBlocksInput = 5000;
+
+        public long TotalSectorsInput
+        {
+            get => _totalSectorsInput;
+            set 
+            {
+                 if (_totalSectorsInput != value)
+                 {
+                     _totalSectorsInput = value; 
+                     OnPropertyChanged();
+                     if (!_isRecalculating) UpdateFromTotalSectors();
+                 }
+            }
+        }
+
+        public long TotalBlocksInput
+        {
+            get => _totalBlocksInput;
+            set 
+            {
+                 if (_totalBlocksInput != value)
+                 {
+                     _totalBlocksInput = value; 
+                     OnPropertyChanged(); 
+                     if (!_isRecalculating) UpdateFromTotalBlocks();
+                 }
+            }
+        }
+
+
+
         // Properties
         public double DiskSizeValue
         {
             get => _diskSizeValue;
-            set { _diskSizeValue = value; OnPropertyChanged(); UpdateConfiguration(); }
+            set 
+            { 
+                if (_diskSizeValue != value)
+                {
+                    _diskSizeValue = value; 
+                    OnPropertyChanged(); 
+                    if (!_isRecalculating) UpdateFromCapacity();
+                    if (!_isRecalculating) UpdateConfiguration(); 
+                }
+            }
         }
 
         public string DiskSizeUnit
         {
             get => _diskSizeUnit;
-            set { _diskSizeUnit = value; OnPropertyChanged(); UpdateConfiguration(); }
+            set 
+            {
+                 _diskSizeUnit = value; 
+                 OnPropertyChanged(); 
+                 if (!_isRecalculating) UpdateFromCapacity();
+                 if (!_isRecalculating) UpdateConfiguration(); 
+            }
         }
 
         public double ClusterSizeValue
@@ -112,6 +175,30 @@ namespace FileSystemVisualizer.ViewModels
             set { _residentFilePercentage = value; OnPropertyChanged(); }
         }
 
+        public int Cylinders
+        {
+            get => _cylinders;
+            set { _cylinders = value; OnPropertyChanged(); if (!_isRecalculating) UpdateFromGeometry(); }
+        }
+
+        public int Heads
+        {
+            get => _heads;
+            set { _heads = value; OnPropertyChanged(); if (!_isRecalculating) UpdateFromGeometry(); }
+        }
+
+        public int SectorsPerTrack
+        {
+            get => _sectorsPerTrack;
+            set { _sectorsPerTrack = value; OnPropertyChanged(); if (!_isRecalculating) UpdateFromGeometry(); }
+        }
+
+        public int GeometrySectorSize
+        {
+            get => _geometrySectorSize;
+            set { _geometrySectorSize = value; OnPropertyChanged(); if (!_isRecalculating) UpdateFromGeometry(); }
+        }
+
         public ICommand BackCommand { get; }
         public ICommand ContinueCommand { get; }
 
@@ -152,6 +239,128 @@ namespace FileSystemVisualizer.ViewModels
 
             Configuration.NumberOfFiles = NumberOfFiles;
             Configuration.ResidentFilePercentage = ResidentFilePercentage;
+        }
+
+        // --- Unified Update Logic ---
+
+        private void UpdateFromGeometry()
+        {
+            _isRecalculating = true;
+            try
+            {
+                if (Cylinders > 0 && Heads > 0 && SectorsPerTrack > 0)
+                {
+                    _totalSectorsInput = (long)Cylinders * Heads * SectorsPerTrack;
+                    OnPropertyChanged(nameof(TotalSectorsInput));
+
+                    long sectorBytes = GeometrySectorSize > 0 ? GeometrySectorSize : 512;
+                    long totalBytes = _totalSectorsInput * sectorBytes;
+                    UpdateCapacityFields(totalBytes);
+
+                    long clusterSize = (long)new UnitValue(ClusterSizeValue, ClusterSizeUnit).ToBytes();
+                    if (clusterSize > 0)
+                    {
+                        _totalBlocksInput = totalBytes / clusterSize;
+                        OnPropertyChanged(nameof(TotalBlocksInput));
+                    }
+                }
+                UpdateConfiguration(); // Sync model
+            }
+            finally { _isRecalculating = false; }
+        }
+
+        private void UpdateFromTotalSectors()
+        {
+            _isRecalculating = true;
+            try
+            {
+                if (TotalSectorsInput > 0)
+                {
+                    long sectorBytes = GeometrySectorSize > 0 ? GeometrySectorSize : 512;
+                    long totalBytes = TotalSectorsInput * sectorBytes;
+                    UpdateCapacityFields(totalBytes);
+
+                    long clusterSize = (long)new UnitValue(ClusterSizeValue, ClusterSizeUnit).ToBytes();
+                    if (clusterSize > 0)
+                    {
+                        _totalBlocksInput = totalBytes / clusterSize;
+                        OnPropertyChanged(nameof(TotalBlocksInput));
+                    }
+                }
+                UpdateConfiguration();
+            }
+            finally { _isRecalculating = false; }
+        }
+
+        private void UpdateFromTotalBlocks()
+        {
+            _isRecalculating = true;
+            try
+            {
+                if (TotalBlocksInput > 0)
+                {
+                    long clusterSize = (long)new UnitValue(ClusterSizeValue, ClusterSizeUnit).ToBytes();
+                    long totalBytes = TotalBlocksInput * clusterSize;
+                    UpdateCapacityFields(totalBytes);
+
+                    long sectorBytes = GeometrySectorSize > 0 ? GeometrySectorSize : 512;
+                    if (sectorBytes > 0)
+                    {
+                        _totalSectorsInput = totalBytes / sectorBytes;
+                        OnPropertyChanged(nameof(TotalSectorsInput));
+                    }
+                }
+                UpdateConfiguration();
+            }
+            finally { _isRecalculating = false; }
+        }
+
+        private void UpdateFromCapacity()
+        {
+            _isRecalculating = true;
+            try
+            {
+                long totalBytes = (long)new UnitValue(DiskSizeValue, DiskSizeUnit).ToBytes();
+                if (totalBytes > 0)
+                {
+                     long sectorBytes = GeometrySectorSize > 0 ? GeometrySectorSize : 512;
+                    if (sectorBytes > 0)
+                    {
+                        _totalSectorsInput = totalBytes / sectorBytes;
+                        OnPropertyChanged(nameof(TotalSectorsInput));
+                    }
+
+                    long clusterSize = (long)new UnitValue(ClusterSizeValue, ClusterSizeUnit).ToBytes();
+                    if (clusterSize > 0)
+                    {
+                        _totalBlocksInput = totalBytes / clusterSize;
+                        OnPropertyChanged(nameof(TotalBlocksInput));
+                    }
+                }
+                UpdateConfiguration();
+            }
+            finally { _isRecalculating = false; }
+        }
+
+        private void UpdateCapacityFields(long totalBytes)
+        {
+             if (totalBytes >= 1024 * 1024 * 1024)
+            {
+                _diskSizeValue = totalBytes / (1024.0 * 1024.0 * 1024.0);
+                _diskSizeUnit = "GB";
+            }
+            else if (totalBytes >= 1024 * 1024)
+            {
+                _diskSizeValue = totalBytes / (1024.0 * 1024.0);
+                _diskSizeUnit = "MB";
+            }
+            else
+            {
+                _diskSizeValue = totalBytes / 1024.0;
+                _diskSizeUnit = "KB";
+            }
+            OnPropertyChanged(nameof(DiskSizeValue));
+            OnPropertyChanged(nameof(DiskSizeUnit));
         }
 
         private bool CanContinue()

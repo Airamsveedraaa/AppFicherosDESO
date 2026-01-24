@@ -10,6 +10,7 @@ namespace FileSystemVisualizer.Models
 
         // FAT Configuration
         public string FatType { get; set; } = "Auto"; // "Auto", "FAT12", "FAT16", "FAT32"
+        public DataField<int> ReservedBlocks { get; set; } = new(3); // Boot + reserved area in blocks
         public DataField<int> NumberOfFatCopies { get; set; } = new(2);
         public DataField<UnitValue> FatSize { get; set; } = new();
 
@@ -19,6 +20,19 @@ namespace FileSystemVisualizer.Models
 
         // Simulation
         public int NumberOfFiles { get; set; } = 5;
+
+        // Record-based sizing (for exercises)
+        public int RecordSizeBytes { get; set; } = 128;
+        public int RecordsPerBlock
+        {
+            get
+            {
+                if (!ClusterSize.IsSpecified || RecordSizeBytes == 0)
+                    return 1;
+                var blockBytes = (int)ClusterSize.Value!.ToBytes(SectorSize.GetValueOrDefault()?.ToBytes() is long sb ? (int)sb : null);
+                return blockBytes / RecordSizeBytes;
+            }
+        }
 
         // Calculated Properties
         public long TotalBlocks
@@ -52,15 +66,29 @@ namespace FileSystemVisualizer.Models
             var blocks = TotalBlocks;
             var fatType = DeterminedFatType;
 
-            int bytesPerEntry = fatType switch
+            int bitsPerEntry = fatType switch
             {
-                "FAT12" => 2, // Aproximado (1.5 bytes redondeado)
-                "FAT16" => 2,
-                "FAT32" => 4,
-                _ => 2
+                "FAT12" => 12,
+                "FAT16" => 16,
+                "FAT32" => 32,
+                _ => 16
             };
 
-            return blocks * bytesPerEntry;
+            // Fórmula del PDF: (Nº bloques × bits por entrada) / 8
+            long fatSizeBytes = (blocks * bitsPerEntry) / 8;
+            return fatSizeBytes;
+        }
+
+        public int CalculateFatSizeInBlocks()
+        {
+            if (!ClusterSize.IsSpecified)
+                return 0;
+
+            var fatSizeBytes = CalculateFatSize();
+            var blockBytes = (long)ClusterSize.Value!.ToBytes(SectorSize.GetValueOrDefault()?.ToBytes() is long sb ? (int)sb : null);
+            
+            // Redondear hacia arriba
+            return (int)Math.Ceiling((double)fatSizeBytes / blockBytes);
         }
     }
 }
